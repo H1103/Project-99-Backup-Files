@@ -1,60 +1,26 @@
-import time
 import os
 import shutil
+import time
 
-path = input("Enter the folder destination where files older than 30 days should be deleted: ")
+path = input("Enter the path of folder to delete: ")
 days = 30
-seconds_in_days = time.time() - days*24*60*60
-deletedFileCount = 0
-deletedFolderCount = 0
+seconds = time.time() - (days * 24 * 60 * 60)
+path = path + "/"
+
+list_of_files = os.listdir(path)
+
+def file_time(path):
+	ctime = os.stat(path).st_ctime
+	return ctime
+
 
 if os.path.exists(path):
-    list_of_files_and_dirs = os.walk(path)
-    for root, dirs, files in list_of_files_and_dirs:
-        if(seconds_in_days >= getDateCreated(root)):
-            removeFolder(root)
-            deletedFolderCount = deletedFolderCount + 1
-            break
+    for file in list_of_files:
+        if seconds >= file_time(path):
+            os.remove(path + file)
+            print("Files deleted successfully!")
 
         else:
-            for dir in dirs:
-                dirPath = os.path.join(root, dir)
-                if(seconds_in_days >= getDateCreated(dirPath)):
-                    removeFolder(dirPath)
-                    deletedFolderCount = deletedFolderCount + 1
-            
-            for file in files:
-                filePath = os.path.join(root, file)
-                if(seconds_in_days >= getDateCreated(filePath)):
-                    removeFile(filePath)
-                    deletedFileCount = deletedFileCount + 1
-
-    else:
-        if seconds_in_days >= getDateCreated(path):
-            removeFile(path)
-            deletedFileCount = deletedFileCount + 1
-
+            print("File exists less than 30 days. Enter a file path that exists more than 30 days.")
 else:
-    print("Path not found!")
-    deletedFileCount = deletedFileCount + 1
-    
-print("Number of folders deleted: ", deletedFolderCount)
-print("Number of files deleted: ", deletedFileCount)
-
-def getDateCreated(path):
-    ctime = os.stat(path).st_ctime
-    return ctime
-
-def removeFolder(path):
-    if not shutil.rmtree(path):
-        print(path + " has been removed successfully")
-
-    else:
-        print("Failed to delete " + path)
-
-def removeFile(path):
-    if not os.remove(path):
-        print(path + " has been removed successfully")
-
-    else:
-        print("Failed to delete " + path)
+    print("Entered path does not exist")
